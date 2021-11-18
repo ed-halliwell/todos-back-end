@@ -87,11 +87,18 @@ app.delete<{ id: string }>("/todos/:id", (req, res) => {
 
 // PATCH /todos/:id
 app.patch<{ id: string }, {}, Partial<todo>>("/todos/:id", (req, res) => {
-  const matchingTodo = updateTodoById(parseInt(req.params.id), req.body);
+  const matchingTodo = getTodoById(parseInt(req.params.id));
   if (matchingTodo === "Not found") {
-    res.status(404).json(matchingTodo);
+    res.status(404).json({
+      status: "fail",
+      message: "No todo found with that ID.",
+    });
   } else {
-    res.status(200).json(matchingTodo);
+    const didUpdate = updateTodoById(parseInt(req.params.id), req.body);
+    res.status(201).json({
+      status: "success",
+      data: { didUpdate },
+    });
   }
 });
 
