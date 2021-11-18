@@ -2,18 +2,19 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import {
-  addDummyDbItems,
-  addDbItem,
-  getAllDbItems,
-  getDbItemById,
-  DbItem,
-  updateDbItemById,
+  addDummyTodos,
+  addTodo,
+  deleteTodoById,
+  getAllTodos,
+  getTodoById,
+  todo,
+  updateTodoById,
 } from "./db";
 import filePath from "./filePath";
 
-// loading in some dummy items into the database
+// loading in some dummy todos into the database
 // (comment out if desired, or change the number)
-addDummyDbItems(20);
+addDummyTodos(10);
 
 const app = express();
 
@@ -34,48 +35,70 @@ app.get("/", (req, res) => {
   res.sendFile(pathToFile);
 });
 
-// GET /items
-app.get("/items", (req, res) => {
-  const allSignatures = getAllDbItems();
+// GET /todos
+app.get("/todos", (req, res) => {
+  const allSignatures = getAllTodos();
   res.status(200).json(allSignatures);
 });
 
-// POST /items
-app.post<{}, {}, DbItem>("/items", (req, res) => {
-  // to be rigorous, ought to handle non-conforming request bodies
-  // ... but omitting this as a simplification
-  const postData = req.body;
-  const createdSignature = addDbItem(postData);
-  res.status(201).json(createdSignature);
-});
-
-// GET /items/:id
-app.get<{ id: string }>("/items/:id", (req, res) => {
-  const matchingSignature = getDbItemById(parseInt(req.params.id));
-  if (matchingSignature === "not found") {
-    res.status(404).json(matchingSignature);
+// POST /todos
+app.post<{}, {}, todo>("/todos", (req, res) => {
+  const { text, createdAt, completed } = req.body;
+  if (text) {
+    const createdSignature = addTodo({
+      text,
+      createdAt,
+      completed,
+    });
+    res.status(201).json(createdSignature);
   } else {
-    res.status(200).json(matchingSignature);
+    res.status(400).json({
+      errorMessage: "You must provide some text for your todo.",
+    });
   }
 });
 
-// DELETE /items/:id
-app.delete<{ id: string }>("/items/:id", (req, res) => {
-  const matchingSignature = getDbItemById(parseInt(req.params.id));
-  if (matchingSignature === "not found") {
-    res.status(404).json(matchingSignature);
+// GET /todos/:id
+app.get<{ id: string }>("/todos/:id", (req, res) => {
+  const matchingTodo = getTodoById(parseInt(req.params.id));
+  if (matchingTodo === "Not found") {
+    res.status(404).json(matchingTodo);
   } else {
-    res.status(200).json(matchingSignature);
+    res.status(200).json(matchingTodo);
   }
 });
 
-// PATCH /items/:id
-app.patch<{ id: string }, {}, Partial<DbItem>>("/items/:id", (req, res) => {
-  const matchingSignature = updateDbItemById(parseInt(req.params.id), req.body);
-  if (matchingSignature === "not found") {
-    res.status(404).json(matchingSignature);
+// DELETE /todos/:id
+app.delete<{ id: string }>("/todos/:id", (req, res) => {
+  const matchingTodo = getTodoById(parseInt(req.params.id));
+  if (matchingTodo === "Not found") {
+    res.status(404).json({
+      status: "fail",
+      message: "No todo found with that ID.",
+    });
   } else {
-    res.status(200).json(matchingSignature);
+    const didRemove = deleteTodoById(matchingTodo.id);
+    res.status(200).json({
+      status: "success",
+      data: { didRemove },
+    });
+  }
+});
+
+// PATCH /todos/:id
+app.patch<{ id: string }, {}, Partial<todo>>("/todos/:id", (req, res) => {
+  const matchingTodo = getTodoById(parseInt(req.params.id));
+  if (matchingTodo === "Not found") {
+    res.status(404).json({
+      status: "fail",
+      message: "No todo found with that ID.",
+    });
+  } else {
+    const didUpdate = updateTodoById(parseInt(req.params.id), req.body);
+    res.status(201).json({
+      status: "success",
+      data: { didUpdate },
+    });
   }
 });
 
