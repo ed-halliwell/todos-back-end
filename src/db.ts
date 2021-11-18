@@ -1,26 +1,26 @@
-export interface DbItem {
+export interface todo {
   // sketch out interface here
 }
 
-export interface DbItemWithId extends DbItem {
+export interface todoWithId extends todo {
   id: number;
 }
 
-const db: DbItemWithId[] = [];
+const db: todoWithId[] = [];
 
-/** Variable to keep incrementing id of database items */
+/** Variable to keep incrementing id of database todos */
 let idCounter = 0;
 
 /**
- * Adds in some dummy database items to the database
+ * Adds in some dummy database todos to the database
  *
- * @param n - the number of items to generate
- * @returns the created items
+ * @param n - the number of todos to generate
+ * @returns the created todos
  */
-export const addDummyDbItems = (n: number): DbItemWithId[] => {
-  const createdSignatures: DbItemWithId[] = [];
+export const addDummyTodos = (n: number): todoWithId[] => {
+  const createdSignatures: todoWithId[] = [];
   for (let count = 0; count < n; count++) {
-    const createdSignature = addDbItem({
+    const createdSignature = addTodo({
       // possibly add some generated data here
     });
     createdSignatures.push(createdSignature);
@@ -29,13 +29,13 @@ export const addDummyDbItems = (n: number): DbItemWithId[] => {
 };
 
 /**
- * Adds in a single item to the database
+ * Adds in a single todo to the database
  *
- * @param data - the item data to insert in
- * @returns the item added (with a newly created id)
+ * @param data - the todo data to insert in
+ * @returns the todo added (with a newly created id)
  */
-export const addDbItem = (data: DbItem): DbItemWithId => {
-  const newEntry: DbItemWithId = {
+export const addTodo = (data: todo): todoWithId => {
+  const newEntry: todoWithId = {
     id: ++idCounter,
     ...data,
   };
@@ -44,31 +44,31 @@ export const addDbItem = (data: DbItem): DbItemWithId => {
 };
 
 /**
- * Deletes a database item with the given id
+ * Deletes a database todo with the given id
  *
- * @param id - the id of the database item to delete
- * @returns the deleted database item (if originally located),
+ * @param id - the id of the database todo to delete
+ * @returns the deleted database todo (if originally located),
  *  otherwise the string `"not found"`
  */
-export const deleteDbItemById = (id: number): DbItemWithId | "not found" => {
-  const idxToDeleteAt = findIndexOfDbItemById(id);
+export const deleteTodoById = (id: number): todoWithId | "not found" => {
+  const idxToDeleteAt = findIndexOfTodoById(id);
   if (typeof idxToDeleteAt === "number") {
-    const itemToDelete = getDbItemById(id);
+    const todoToDelete = getTodoById(id);
     db.splice(idxToDeleteAt, 1); // .splice can delete from an array
-    return itemToDelete;
+    return todoToDelete;
   } else {
     return "not found";
   }
 };
 
 /**
- * Finds the index of a database item with a given id
+ * Finds the index of a database todo with a given id
  *
- * @param id - the id of the database item to locate the index of
- * @returns the index of the matching database item,
+ * @param id - the id of the database todo to locate the index of
+ * @returns the index of the matching database todo,
  *  otherwise the string `"not found"`
  */
-const findIndexOfDbItemById = (id: number): number | "not found" => {
+const findIndexOfTodoById = (id: number): number | "not found" => {
   const matchingIdx = db.findIndex((entry) => entry.id === id);
   // .findIndex returns -1 if not located
   if (matchingIdx) {
@@ -79,21 +79,21 @@ const findIndexOfDbItemById = (id: number): number | "not found" => {
 };
 
 /**
- * Find all database items
- * @returns all database items from the database
+ * Find all database todos
+ * @returns all database todos from the database
  */
-export const getAllDbItems = (): DbItemWithId[] => {
+export const getAllTodos = (): todoWithId[] => {
   return db;
 };
 
 /**
- * Locates a database item by a given id
+ * Locates a database todo by a given id
  *
- * @param id - the id of the database item to locate
- * @returns the located database item (if found),
+ * @param id - the id of the database todo to locate
+ * @returns the located database todo (if found),
  *  otherwise the string `"not found"`
  */
-export const getDbItemById = (id: number): DbItemWithId | "not found" => {
+export const getTodoById = (id: number): todoWithId | "not found" => {
   const maybeEntry = db.find((entry) => entry.id === id);
   if (maybeEntry) {
     return maybeEntry;
@@ -103,19 +103,19 @@ export const getDbItemById = (id: number): DbItemWithId | "not found" => {
 };
 
 /**
- * Applies a partial update to a database item for a given id
+ * Applies a partial update to a database todo for a given id
  *  based on the passed data
  *
- * @param id - the id of the database item to update
+ * @param id - the id of the database todo to update
  * @param newData - the new data to overwrite
- * @returns the updated database item (if one is located),
+ * @returns the updated database todo (if one is located),
  *  otherwise the string `"not found"`
  */
-export const updateDbItemById = (
+export const updateTodoById = (
   id: number,
-  newData: Partial<DbItem>
-): DbItemWithId | "not found" => {
-  const idxOfEntry = findIndexOfDbItemById(id);
+  newData: Partial<todo>
+): todoWithId | "not found" => {
+  const idxOfEntry = findIndexOfTodoById(id);
   // type guard against "not found"
   if (typeof idxOfEntry === "number") {
     return Object.assign(db[idxOfEntry], newData);
