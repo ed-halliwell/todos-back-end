@@ -1,5 +1,5 @@
 {
-  "name": "guestbook-server",
+  "name": "todos-back-end",
   "version": "0.0.1",
   "scripts": {
     "build": "tsc",
