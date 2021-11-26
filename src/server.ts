@@ -152,10 +152,36 @@ app.delete<{ id: string }>("/todos/:id", async (req, res) => {
 app.patch<{ id: string }, {}, Partial<todo>>("/todos/:id", async (req, res) => {
   const { text, completed } = req.body;
   const id = parseInt(req.params.id);
-  if (typeof text === "string" || typeof completed === "boolean") {
+
+  // update if just text is changed
+  if (text && typeof text === "string") {
     const updateResponse = await client.query(
-      "UPDATE todos SET text = $2, completed = $3 WHERE id = $1 RETURNING *",
-      [id, text, completed]
+      "UPDATE todos SET text = $2 WHERE id = $1 RETURNING *",
+      [id, text]
+    );
+
+    if (updateResponse.rowCount === 1) {
+      const updatedTodo = updateResponse.rows[0];
+      res.status(201).json({
+        status: "success",
+        data: {
+          todo: updatedTodo,
+        },
+      });
+    } else {
+      res.status(404).json({
+        status: "fail",
+        data: {
+          id: "Could not find a todo with that id.",
+        },
+      });
+    }
+  }
+  // update if just completed is changed)
+  else if (completed && typeof completed === "boolean") {
+    const updateResponse = await client.query(
+      "UPDATE todos SET completed = $2 WHERE id = $1 RETURNING *",
+      [id, completed]
     );
 
     if (updateResponse.rowCount === 1) {
