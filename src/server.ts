@@ -69,13 +69,13 @@ app.get("/todos", async (req, res) => {
 app.post<{}, {}, todo>("/todos", async (req, res) => {
   const { text } = req.body;
   if (typeof text === "string") {
-    const createdSignature = await client.query(
+    const createdTodo = await client.query(
       "INSERT INTO todos VALUES (default, $1) RETURNING *",
       [text]
     );
     res.status(201).json({
       status: "success",
-      newTodo: createdSignature.rows[0],
+      newTodo: createdTodo.rows[0],
     });
   } else {
     res.status(400).json({
@@ -123,7 +123,7 @@ app.delete<{ id: string }>("/todos/:id", async (req, res) => {
 
   if (getTodoById) {
     const queryResult: any = await client.query(
-      "DELETE FROM signatures WHERE id = ($1)",
+      "DELETE FROM todos WHERE id = ($1)",
       [id]
     );
     if (queryResult.rowCount === 1) {
@@ -142,7 +142,7 @@ app.delete<{ id: string }>("/todos/:id", async (req, res) => {
     res.status(404).json({
       status: "fail",
       data: {
-        id: "Could not find a signature with that id identifier",
+        id: "Could not find a todo with that id.",
       },
     });
   }
