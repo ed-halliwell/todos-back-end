@@ -178,7 +178,7 @@ app.patch<{ id: string }, {}, Partial<todo>>("/todos/:id", async (req, res) => {
     }
   }
   // update if just completed is changed)
-  else if (completed && typeof completed === "boolean") {
+  else if (typeof completed === "boolean") {
     const updateResponse = await client.query(
       "UPDATE todos SET completed = $2 WHERE id = $1 RETURNING *",
       [id, completed]
