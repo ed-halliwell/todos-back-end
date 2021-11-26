@@ -150,12 +150,12 @@ app.delete<{ id: string }>("/todos/:id", async (req, res) => {
 
 // PATCH /todos/:id
 app.patch<{ id: string }, {}, Partial<todo>>("/todos/:id", async (req, res) => {
-  const { text } = req.body;
+  const { text, completed } = req.body;
   const id = parseInt(req.params.id);
-  if (typeof text === "string") {
+  if (typeof text === "string" || typeof completed === "boolean") {
     const updateResponse = await client.query(
-      "UPDATE todos SET text = $2 WHERE id = $1 RETURNING *",
-      [id, text]
+      "UPDATE todos SET text = $2, completed = $3 WHERE id = $1 RETURNING *",
+      [id, text, completed]
     );
 
     if (updateResponse.rowCount === 1) {
